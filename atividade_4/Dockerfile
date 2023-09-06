@@ -39,6 +39,22 @@ COPY clang_hello_world.c /var/tmp/clang_hello_world.c
 
 RUN clang -o /usr/local/bin/clang_hello_world /var/tmp/clang_hello_world.c
 
+RUN apt-get update -y && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        build-essential \
+        ca-certificates \
+        git \
+        make && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN git clone https://github.com/ECP-ExaGraph/miniVite.git
+
+COPY Makefile /miniVite
+
+RUN cd miniVite && \
+    make all && \
+    mpiexec --allow-run-as-root -n 2 bin/./minivite -l -n 100
+
 RUN mpirun --allow-run-as-root --help
 
 RUN echo "mpi version"
