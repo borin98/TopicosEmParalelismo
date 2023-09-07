@@ -32,11 +32,11 @@ Stage0 += baseimage(image="ubuntu:22.04")
 
 ### Compiler
 compiler = llvm(version="15", eula=True)
+compiler += gnu(version="11", eula=True)
 Stage0 += compiler
 
 ### openmpi installation
-Stage0 += openmpi(cuda=False, infiniband=False, version="4.1.5",
-                  prefix='/usr/local/openmpi', toolchain=compiler.toolchain)
+Stage0 += openmpi(cuda=False, infiniband=False, version="4.1.5", toolchain=compiler.toolchain)
 
 ### MPI benchmark
 Stage0 += copy(src='mpi_hello_world.c', dest='/var/tmp/mpi_hello_world.c')
@@ -48,12 +48,11 @@ Stage0 += shell(commands=['clang -o /usr/local/bin/clang_hello_world /var/tmp/cl
 
 ### Downloading miniVite package
 # Set the working directory for miniVite
-# Stage0.workdir = '/minivite'
 Stage0 += apt_get(ospackages=["git", "build-essential", "make", "ca-certificates"])
 Stage0 += shell(commands=['git clone https://github.com/ECP-ExaGraph/miniVite.git'])
 Stage0 += copy(src="Makefile", dest="/miniVite")
 Stage0 += shell(commands=['cd miniVite',
-                          'make all',
+                          'make',
                           'mpiexec --allow-run-as-root -n 2 bin/./minivite -l -n 100'])  # Build miniVite
 
 # Testing if the mpi is working
