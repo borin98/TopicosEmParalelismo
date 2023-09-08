@@ -8,17 +8,6 @@ RUN apt-get update -y && \
     rm -rf /var/lib/apt/lists/*
 RUN update-alternatives --install /usr/bin/clang clang $(which clang-15) 30 && \
     update-alternatives --install /usr/bin/clang++ clang++ $(which clang++-15) 30
-# GNU compiler
-RUN apt-get update -y && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-        g++-11 \
-        gcc-11 \
-        gfortran-11 && \
-    rm -rf /var/lib/apt/lists/*
-RUN update-alternatives --install /usr/bin/g++ g++ $(which g++-11) 30 && \
-    update-alternatives --install /usr/bin/gcc gcc $(which gcc-11) 30 && \
-    update-alternatives --install /usr/bin/gcov gcov $(which gcov-11) 30 && \
-    update-alternatives --install /usr/bin/gfortran gfortran $(which gfortran-11) 30
 
 # OpenMPI version 4.1.5
 RUN apt-get update -y && \
@@ -54,6 +43,7 @@ RUN apt-get update -y && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
         build-essential \
         ca-certificates \
+        g++ \
         git \
         make && \
     rm -rf /var/lib/apt/lists/*
@@ -64,7 +54,10 @@ COPY Makefile /miniVite
 
 RUN cd /miniVite && \
     make && \
-    mpirun --allow-run-as-root -n 2 ./miniVite -n 100
+    mv ./miniVite /usr/local/bin/ && \
+    apt-get purge g++ -y
+
+RUN mpirun --allow-run-as-root -n 2 /usr/local/bin/miniVite -n 100
 
 RUN mpirun --allow-run-as-root --help
 

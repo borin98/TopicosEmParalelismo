@@ -32,7 +32,6 @@ Stage0 += baseimage(image="ubuntu:22.04")
 
 ### Compiler
 compiler = llvm(version="15", eula=True)
-compiler += gnu(version="11", eula=True)
 Stage0 += compiler
 
 ### openmpi installation
@@ -47,13 +46,16 @@ Stage0 += copy(src='clang_hello_world.c', dest='/var/tmp/clang_hello_world.c')
 Stage0 += shell(commands=['clang -o /usr/local/bin/clang_hello_world /var/tmp/clang_hello_world.c'])
 
 ### Downloading miniVite package
-# Set the working directory for miniVite
-Stage0 += apt_get(ospackages=["git", "build-essential", "make", "ca-certificates"])
+Stage0 += apt_get(ospackages=["git", "build-essential", "make", "ca-certificates", 'g++'])
 Stage0 += shell(commands=['git clone https://github.com/ECP-ExaGraph/miniVite.git'])
 Stage0 += copy(src="Makefile", dest="/miniVite")
 Stage0 += shell(commands=['cd /miniVite',
                           'make',
-                          'mpirun --allow-run-as-root -n 2 ./miniVite -n 100'])  # Build miniVite
+                          'mv ./miniVite /usr/local/bin/',
+                          'rm -rf /miniVite',
+                          'apt-get purge g++ -y'])  # Build miniVite
+
+Stage0 += shell(commands=['mpirun --allow-run-as-root -n 2 /usr/local/bin/miniVite -n 100'])
 
 # Testing if the mpi is working
 Stage0 += shell(commands=['mpirun --allow-run-as-root --help'])
