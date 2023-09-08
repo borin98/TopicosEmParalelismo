@@ -46,16 +46,15 @@ Stage0 += copy(src='clang_hello_world.c', dest='/var/tmp/clang_hello_world.c')
 Stage0 += shell(commands=['clang -o /usr/local/bin/clang_hello_world /var/tmp/clang_hello_world.c'])
 
 ### Downloading miniVite package
-Stage0 += apt_get(ospackages=["git", "build-essential", "make", "ca-certificates", 'g++'])
+Stage0 += apt_get(ospackages=["git", "build-essential", "make", "ca-certificates"])
 Stage0 += shell(commands=['git clone https://github.com/ECP-ExaGraph/miniVite.git'])
 Stage0 += copy(src="Makefile", dest="/miniVite")
 Stage0 += shell(commands=['cd /miniVite',
                           'make',
                           'mv ./miniVite /usr/local/bin/',
                           'rm -rf /miniVite',
-                          'apt-get purge g++ -y'])  # Build miniVite
-
-Stage0 += shell(commands=['mpirun --allow-run-as-root -n 2 /usr/local/bin/miniVite -n 100'])
+                          'apt-get purge --auto-remove git -y',
+                          'apt-get purge --auto-remove make -y'])  # Build miniVite
 
 # Testing if the mpi is working
 Stage0 += shell(commands=['mpirun --allow-run-as-root --help'])
@@ -67,6 +66,9 @@ Stage0 += shell(commands=['mpirun -n 4 --allow-run-as-root mpi_hello_world'])
 Stage0 += shell(commands=['echo Clang version'])
 Stage0 += shell(commands=['clang --version'])
 Stage0 += shell(commands=['./usr/local/bin/clang_hello_world'])
+
+# Testing the miniVite package
+Stage0 += shell(commands=['mpirun --allow-run-as-root -n 2 /usr/local/bin/miniVite -n 100'])
 
 ### Set container specification output format
 hpccm.config.set_container_format("docker")

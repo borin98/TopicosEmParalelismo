@@ -43,7 +43,6 @@ RUN apt-get update -y && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
         build-essential \
         ca-certificates \
-        g++ \
         git \
         make && \
     rm -rf /var/lib/apt/lists/*
@@ -55,9 +54,9 @@ COPY Makefile /miniVite
 RUN cd /miniVite && \
     make && \
     mv ./miniVite /usr/local/bin/ && \
-    apt-get purge g++ -y
-
-RUN mpirun --allow-run-as-root -n 2 /usr/local/bin/miniVite -n 100
+    rm -rf /miniVite && \
+    apt-get purge --auto-remove git -y && \
+    apt-get purge --auto-remove make -y
 
 RUN mpirun --allow-run-as-root --help
 
@@ -72,6 +71,8 @@ RUN echo Clang version
 RUN clang --version
 
 RUN ./usr/local/bin/clang_hello_world
+
+RUN mpirun --allow-run-as-root -n 2 /usr/local/bin/miniVite -n 100
 
 
 

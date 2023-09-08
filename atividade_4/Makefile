@@ -1,9 +1,6 @@
 CC = mpicc
 CXX = mpicxx
 
-#CC = clang
-#CXX = clang++
-
 USE_TAUPROF=0
 ifeq ($(USE_TAUPROF),1)
 TAU=/soft/perftools/tau/tau-2.29/craycnl/lib
@@ -14,8 +11,8 @@ OPTFLAGS = -O3 -fopenmp -DPRINT_DIST_STATS #-DPRINT_EXTRA_NEDGES #-DUSE_MPI_RMA 
 #-DUSE_MPI_SENDRECV
 #-DUSE_MPI_COLLECTIVES
 # use export ASAN_OPTIONS=verbosity=1 to check ASAN output
-SNTFLAGS = -std=c++11 -fopenmp -fsanitize=address -O1 -fno-omit-frame-pointer MPICH_MAX_THREAD_SAFETY=multiple
-CXXFLAGS = -std=c++11 -g $(OPTFLAGS)
+SNTFLAGS = -fopenmp -fsanitize=address -O1 -fno-omit-frame-pointer MPICH_MAX_THREAD_SAFETY=multiple
+CXXFLAGS = -g $(OPTFLAGS)
 
 OBJ = main.o
 TARGET = miniVite
