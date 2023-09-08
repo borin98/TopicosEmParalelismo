@@ -41,22 +41,19 @@ docker pull gabrielborimacedo/openmpi_mo:latest && docker run -it --rm gabrielbo
 ### Test the compiled hello world for clang and mpi in the container
 
 ```{.shell}
-docker pull gabrielborimacedo/openmpi_mo:latest && docker run -it --rm gabrielborimacedo/openmpi_mo:latest sh -c "mpirun -n 4 --allow-run-as-root mpi_hello_world && 
-echo "" && ./usr/local/bin/clang_hello_world"
+docker pull gabrielborimacedo/openmpi_mo:latest && docker run -it --rm gabrielborimacedo/openmpi_mo:latest sh -c "mpirun -n 4 --allow-run-as-root mpi_hello_world && echo "" && ./usr/local/bin/clang_hello_world"
 ```
 
 ### Test the build to the hello world and run the compiled hello world for clang and mpi in the container (it's the same hello_world as bellow)
 
 ```{.shell}
-docker pull gabrielborimacedo/openmpi_mo:latest && docker run -it --rm gabrielborimacedo/openmpi_mo:latest sh -c "mpicc -o /usr/local/bin/mpi_hello_world /var/tmp/mpi_hello_world.c 
-&& mpirun -n 4 --allow-run-as-root mpi_hello_world && echo "" && clang -o /usr/local/bin/clang_hello_world /var/tmp/clang_hello_world.c && ./usr/local/bin/clang_hello_world"
+docker pull gabrielborimacedo/openmpi_mo:latest && docker run -it --rm gabrielborimacedo/openmpi_mo:latest sh -c "mpicc -o /usr/local/bin/mpi_hello_world /var/tmp/mpi_hello_world.c && mpirun -n 4 --allow-run-as-root mpi_hello_world && echo "" && clang -o /usr/local/bin/clang_hello_world /var/tmp/clang_hello_world.c && ./usr/local/bin/clang_hello_world"
 ```
 
 ### Test the miniVite container version
 
 ```{.shell}
-docker pull gabrielborimacedo/openmpi_mo:latest && docker run -it --rm gabrielborimacedo/openmpi_mo:latest sh -c 
-"mpirun --allow-run-as-root -n 2 /usr/local/bin/miniVite -n 100"
+docker pull gabrielborimacedo/openmpi_mo:latest && docker run -it --rm gabrielborimacedo/openmpi_mo:latest sh -c "mpirun --allow-run-as-root -n 2 /usr/local/bin/miniVite -n 100"
 ```
 
 #### Important notes
