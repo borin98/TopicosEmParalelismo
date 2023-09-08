@@ -24,13 +24,13 @@ HPC CONTAINER MAKER](https://bluewaters.ncsa.illinois.edu/liferay-content/docume
 
 To use miniVite, the compiled file version is located at
 
-## Container run examples
-
-To test two functions, you can use the following docker command
-
 ```{.shell}
 cd /usr/local/bin/miniVite
 ```
+
+## Container run examples
+
+To test two functions, you can use the following docker command
 
 ### Test the version of clang and open_mpi
 

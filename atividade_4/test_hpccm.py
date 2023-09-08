@@ -1,9 +1,15 @@
 #!/usr/bin/env python
 
-"""This python code creates a Dockerfile with open_mpi==4.1.5 (latest version) and clang==15 using the python package HPCCM.
+"""This repository contains a python code that creates a Dockerfile with open_mpi==4.1.5 (latest version), clang==15,
+clang++==15 and the package [miniVite](https://github.com/ECP-ExaGraph/miniVite/tree/master) using the python
+package [HPCCM](https://github.com/NVIDIA/hpc-container-maker).
 
 Also, this script was inspired using the workshop [MAKING CONTAINERS EASIER WITH
 HPC CONTAINER MAKER](https://bluewaters.ncsa.illinois.edu/liferay-content/document-library/content/HPC%20Container%20Maker%20NCSA%20Webinar.pdf)
+
+```{.shell}
+cd /usr/local/bin/miniVite
+```
 
 To test two functions, you can use the following docker command
 
@@ -15,6 +21,11 @@ docker pull gabrielborimacedo/openmpi_mo:latest && docker run -it --rm gabrielbo
 
 # Test the build to the hello world and run the compiled hello world for clang and mpi in the container (it's the same hello_world as bellow)
 docker pull gabrielborimacedo/openmpi_mo:latest && docker run -it --rm gabrielborimacedo/openmpi_mo:latest sh -c "mpicc -o /usr/local/bin/mpi_hello_world /var/tmp/mpi_hello_world.c && mpirun -n 4 --allow-run-as-root mpi_hello_world && echo "" && clang -o /usr/local/bin/clang_hello_world /var/tmp/clang_hello_world.c && ./usr/local/bin/clang_hello_world"
+
+# Test the miniVite container version
+```{.shell}
+docker pull gabrielborimacedo/openmpi_mo:latest && docker run -it --rm gabrielborimacedo/openmpi_mo:latest sh -c "mpirun --allow-run-as-root -n 2 /usr/local/bin/miniVite -n 100"
+```
 
 OBS : both hello_world for clang and mpi are on the path /var/tmp/ inside the container
 Also, you can find the dockerhub of the repository [here](https://hub.docker.com/r/gabrielborimacedo/openmpi_mo)
