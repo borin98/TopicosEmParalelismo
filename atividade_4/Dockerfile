@@ -62,9 +62,9 @@ RUN git clone https://github.com/ECP-ExaGraph/miniVite.git
 
 COPY Makefile /miniVite
 
-RUN cd miniVite && \
+RUN cd /miniVite && \
     make && \
-    mpiexec --allow-run-as-root -n 2 bin/./minivite -l -n 100
+    mpirun --allow-run-as-root -n 2 ./miniVite -n 100
 
 RUN mpirun --allow-run-as-root --help
 

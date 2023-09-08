@@ -51,9 +51,9 @@ Stage0 += shell(commands=['clang -o /usr/local/bin/clang_hello_world /var/tmp/cl
 Stage0 += apt_get(ospackages=["git", "build-essential", "make", "ca-certificates"])
 Stage0 += shell(commands=['git clone https://github.com/ECP-ExaGraph/miniVite.git'])
 Stage0 += copy(src="Makefile", dest="/miniVite")
-Stage0 += shell(commands=['cd miniVite',
+Stage0 += shell(commands=['cd /miniVite',
                           'make',
-                          'mpiexec --allow-run-as-root -n 2 bin/./minivite -l -n 100'])  # Build miniVite
+                          'mpirun --allow-run-as-root -n 2 ./miniVite -n 100'])  # Build miniVite
 
 # Testing if the mpi is working
 Stage0 += shell(commands=['mpirun --allow-run-as-root --help'])
