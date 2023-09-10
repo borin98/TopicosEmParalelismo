@@ -9,6 +9,26 @@ RUN apt-get update -y && \
 RUN update-alternatives --install /usr/bin/clang clang $(which clang-15) 30 && \
     update-alternatives --install /usr/bin/clang++ clang++ $(which clang++-15) 30
 
+RUN apt-get update -y && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        autoconf \
+        automake \
+        build-essential \
+        ca-certificates \
+        git \
+        make \
+        wget && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN cd / && \
+    wget https://github.com/openucx/ucx/releases/download/v1.14.1/ucx-1.14.1.tar.gz && \
+    tar xzf ucx-1.14.1.tar.gz && \
+    cd ucx-1.14.1 && \
+    mkdir build && \
+    bash ./contrib/configure-release --prefix=/ucx-1.14.1/build/ && \
+    make -j4 && \
+    make install
+
 # OpenMPI version 4.1.5
 RUN apt-get update -y && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
@@ -24,7 +44,7 @@ RUN apt-get update -y && \
     rm -rf /var/lib/apt/lists/*
 RUN mkdir -p /var/tmp && wget -q -nc --no-check-certificate -P /var/tmp https://www.open-mpi.org/software/ompi/v4.1/downloads/openmpi-4.1.5.tar.bz2 && \
     mkdir -p /var/tmp && tar -x -f /var/tmp/openmpi-4.1.5.tar.bz2 -C /var/tmp -j && \
-    cd /var/tmp/openmpi-4.1.5 &&  CC=clang CXX=clang++ ./configure --prefix=/usr/local/openmpi --disable-getpwuid --enable-orterun-prefix-by-default --without-cuda --without-verbs && \
+    cd /var/tmp/openmpi-4.1.5 &&  CC=clang CXX=clang++ ./configure --prefix=/usr/local/openmpi --disable-getpwuid --enable-orterun-prefix-by-default --with-ucx --without-cuda --without-verbs && \
     make -j$(nproc) && \
     make -j$(nproc) install && \
     rm -rf /var/tmp/openmpi-4.1.5 /var/tmp/openmpi-4.1.5.tar.bz2
@@ -38,14 +58,6 @@ RUN mpicc -o /usr/local/bin/mpi_hello_world /var/tmp/mpi_hello_world.c
 COPY clang_hello_world.c /var/tmp/clang_hello_world.c
 
 RUN clang -o /usr/local/bin/clang_hello_world /var/tmp/clang_hello_world.c
-
-RUN apt-get update -y && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-        build-essential \
-        ca-certificates \
-        git \
-        make && \
-    rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/ECP-ExaGraph/miniVite.git
 

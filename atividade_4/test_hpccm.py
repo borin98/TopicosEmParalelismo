@@ -46,7 +46,13 @@ compiler = llvm(version="15", eula=True)
 Stage0 += compiler
 
 ### openmpi installation
-Stage0 += openmpi(cuda=False, infiniband=False, version="4.1.5", toolchain=compiler.toolchain)
+Stage0 += apt_get(ospackages=["git", "build-essential", "make", "ca-certificates", "autoconf", "automake", "wget"])
+Stage0 += shell(commands=["cd /",
+                          "wget https://github.com/openucx/ucx/releases/download/v1.14.1/ucx-1.14.1.tar.gz",
+                          "tar xzf ucx-1.14.1.tar.gz",
+                          "cd ucx-1.14.1", "mkdir build",
+                          "bash ./contrib/configure-release --prefix=/ucx-1.14.1/build/", "make -j4", "make install"])
+Stage0 += openmpi(cuda=False, infiniband=False, version="4.1.5", toolchain=compiler.toolchain, ucx=True)
 
 ### MPI benchmark
 Stage0 += copy(src='mpi_hello_world.c', dest='/var/tmp/mpi_hello_world.c')
@@ -57,7 +63,7 @@ Stage0 += copy(src='clang_hello_world.c', dest='/var/tmp/clang_hello_world.c')
 Stage0 += shell(commands=['clang -o /usr/local/bin/clang_hello_world /var/tmp/clang_hello_world.c'])
 
 ### Downloading miniVite package
-Stage0 += apt_get(ospackages=["git", "build-essential", "make", "ca-certificates"])
+# Stage0 += apt_get(ospackages=["git", "build-essential", "make", "ca-certificates"])
 Stage0 += shell(commands=['git clone https://github.com/ECP-ExaGraph/miniVite.git'])
 Stage0 += copy(src="Makefile", dest="/miniVite")
 Stage0 += shell(commands=['cd /miniVite',
