@@ -1,5 +1,25 @@
 FROM ubuntu:22.04
 
+# GNU compiler
+RUN apt-get update -y && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        g++ \
+        gcc \
+        gfortran && \
+    rm -rf /var/lib/apt/lists/*
+
+# CMake version 3.25.1
+RUN apt-get update -y && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        make \
+        wget && \
+    rm -rf /var/lib/apt/lists/*
+RUN mkdir -p /var/tmp && wget -q -nc --no-check-certificate -P /var/tmp https://github.com/Kitware/CMake/releases/download/v3.25.1/cmake-3.25.1-linux-x86_64.sh && \
+    mkdir -p /usr/local && \
+    /bin/sh /var/tmp/cmake-3.25.1-linux-x86_64.sh --prefix=/usr/local --skip-license && \
+    rm -rf /var/tmp/cmake-3.25.1-linux-x86_64.sh
+ENV PATH=/usr/local/bin:$PATH
+
 # LLVM compiler
 RUN apt-get update -y && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
@@ -9,25 +29,58 @@ RUN apt-get update -y && \
 RUN update-alternatives --install /usr/bin/clang clang $(which clang-15) 30 && \
     update-alternatives --install /usr/bin/clang++ clang++ $(which clang++-15) 30
 
+# GDRCOPY version 2.2
 RUN apt-get update -y && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-        autoconf \
-        automake \
-        build-essential \
-        ca-certificates \
-        git \
         make \
         wget && \
     rm -rf /var/lib/apt/lists/*
+RUN mkdir -p /var/tmp && wget -q -nc --no-check-certificate -P /var/tmp https://github.com/NVIDIA/gdrcopy/archive/v2.2.tar.gz && \
+    mkdir -p /var/tmp && tar -x -f /var/tmp/v2.2.tar.gz -C /var/tmp -z && \
+    cd /var/tmp/gdrcopy-2.2 && \
+    mkdir -p /usr/local/gdrcopy/include /usr/local/gdrcopy/lib && \
+    make prefix=/usr/local/gdrcopy lib lib_install && \
+    rm -rf /var/tmp/gdrcopy-2.2 /var/tmp/v2.2.tar.gz
+ENV CPATH=/usr/local/gdrcopy/include:$CPATH \
+    LD_LIBRARY_PATH=/usr/local/gdrcopy/lib:$LD_LIBRARY_PATH \
+    LIBRARY_PATH=/usr/local/gdrcopy/lib:$LIBRARY_PATH
 
-RUN cd / && \
-    wget https://github.com/openucx/ucx/releases/download/v1.14.1/ucx-1.14.1.tar.gz && \
-    tar xzf ucx-1.14.1.tar.gz && \
-    cd ucx-1.14.1 && \
-    mkdir build && \
-    bash ./contrib/configure-release --prefix=/ucx-1.14.1/build/ && \
-    make -j4 && \
-    make install
+# KNEM version 1.1.4
+RUN apt-get update -y && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        ca-certificates \
+        git && \
+    rm -rf /var/lib/apt/lists/*
+RUN mkdir -p /var/tmp && cd /var/tmp && git clone --depth=1 --branch knem-1.1.4 https://gitlab.inria.fr/knem/knem.git knem && cd - && \
+    mkdir -p /usr/local/knem && \
+    cd /var/tmp/knem && \
+    mkdir -p /usr/local/knem/include && \
+    cp common/*.h /usr/local/knem/include && \
+    rm -rf /var/tmp/knem
+ENV CPATH=/usr/local/knem/include:$CPATH
+
+# UCX version 1.14.1
+RUN apt-get update -y && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        binutils-dev \
+        file \
+        libnuma-dev \
+        make \
+        wget && \
+    rm -rf /var/lib/apt/lists/*
+RUN mkdir -p /var/tmp && wget -q -nc --no-check-certificate -P /var/tmp https://github.com/openucx/ucx/releases/download/v1.14.1/ucx-1.14.1.tar.gz && \
+    mkdir -p /var/tmp && tar -x -f /var/tmp/ucx-1.14.1.tar.gz -C /var/tmp -z && \
+    cd /var/tmp/ucx-1.14.1 &&   ./configure --prefix=/usr/local/ucx --disable-assertions --disable-debug --disable-doxygen-doc --disable-logging --disable-params-check --enable-optimizations --with-knem=/usr/local/knem --without-cuda && \
+    make -j$(nproc) && \
+    make -j$(nproc) install && \
+    rm -rf /var/tmp/ucx-1.14.1 /var/tmp/ucx-1.14.1.tar.gz
+ENV CPATH=/usr/local/ucx/include:$CPATH \
+    LD_LIBRARY_PATH=/usr/local/ucx/lib:$LD_LIBRARY_PATH \
+    LIBRARY_PATH=/usr/local/ucx/lib:$LIBRARY_PATH \
+    PATH=/usr/local/ucx/bin:$PATH
+
+RUN apt-get purge --auto-remove gcc -y && \
+    apt-get purge --auto-remove g++ -y
 
 # OpenMPI version 4.1.5
 RUN apt-get update -y && \
@@ -44,7 +97,7 @@ RUN apt-get update -y && \
     rm -rf /var/lib/apt/lists/*
 RUN mkdir -p /var/tmp && wget -q -nc --no-check-certificate -P /var/tmp https://www.open-mpi.org/software/ompi/v4.1/downloads/openmpi-4.1.5.tar.bz2 && \
     mkdir -p /var/tmp && tar -x -f /var/tmp/openmpi-4.1.5.tar.bz2 -C /var/tmp -j && \
-    cd /var/tmp/openmpi-4.1.5 &&  CC=clang CXX=clang++ ./configure --prefix=/usr/local/openmpi --disable-getpwuid --enable-orterun-prefix-by-default --with-ucx --without-cuda --without-verbs && \
+    cd /var/tmp/openmpi-4.1.5 &&  CC=clang CXX=clang++ ./configure --prefix=/usr/local/openmpi --disable-getpwuid --enable-orterun-prefix-by-default --with-ucx=/usr/local/ucx --without-cuda --without-verbs && \
     make -j$(nproc) && \
     make -j$(nproc) install && \
     rm -rf /var/tmp/openmpi-4.1.5 /var/tmp/openmpi-4.1.5.tar.bz2
@@ -67,8 +120,7 @@ RUN cd /miniVite && \
     make && \
     mv ./miniVite /usr/local/bin/ && \
     rm -rf /miniVite && \
-    apt-get purge --auto-remove git -y && \
-    apt-get purge --auto-remove make -y
+    apt-get purge --auto-remove git -y
 
 RUN mpirun --allow-run-as-root --help
 
@@ -82,9 +134,9 @@ RUN echo Clang version
 
 RUN clang --version
 
-RUN ./usr/local/bin/clang_hello_world
+RUN "./usr/local/bin/clang_hello_world"
 
-RUN mpirun --allow-run-as-root -n 2 /usr/local/bin/miniVite -n 100
+RUN mpirun -n 2 --allow-run-as-root miniVite -n 100
 
 
 

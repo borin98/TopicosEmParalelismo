@@ -1,6 +1,7 @@
 # Activity 4 : Development: Create a container image with HPCCM
 
-This repository contains a python code that creates a Dockerfile with open_mpi==4.1.5 (latest version), clang==15,
+This repository contains a python code that creates a Dockerfile with open_mpi==4.1.5 (latest version)
+using [ucx](https://openucx.readthedocs.io/en/master/running.html#running-in-docker-containers)==1.14.1, clang==15,
 clang++==15 and the package [miniVite](https://github.com/ECP-ExaGraph/miniVite/tree/master) using the python
 package [HPCCM](https://github.com/NVIDIA/hpc-container-maker).
 
@@ -53,7 +54,7 @@ docker pull gabrielborimacedo/openmpi_mo:latest && docker run -it --rm gabrielbo
 ### Test the miniVite container version
 
 ```{.shell}
-docker pull gabrielborimacedo/openmpi_mo:latest && docker run -it --rm gabrielborimacedo/openmpi_mo:latest sh -c "mpirun --allow-run-as-root -n 2 /usr/local/bin/miniVite -n 100"
+docker pull gabrielborimacedo/openmpi_mo:latest && docker run -it --rm gabrielborimacedo/openmpi_mo:latest sh -c "mpirun --allow-run-as-root -n 2 miniVite -n 100"
 ```
 
 #### Important notes
