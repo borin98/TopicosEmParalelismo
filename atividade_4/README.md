@@ -17,8 +17,9 @@ HPC CONTAINER MAKER](https://bluewaters.ncsa.illinois.edu/liferay-content/docume
 ├── mpi_hello_world.c # open_mpi hello code example
 ├── out_build_hpccm_log.txt # local log for the image build
 ├── out_hpccm.sh # shell script to create the Dockerfile
+├── compiler.m4 # .m4 file used to install ucx whiout the flag -Werror
 ├── README.md # README.md docs
-└── test_hpccm.py # python script that generates the Dockerfile
+└── hpccm_recipe.py # python script that generates the Dockerfile
 ```
 
 ## Using miniVite inside the container
@@ -61,4 +62,5 @@ docker pull gabrielborimacedo/openmpi_mo:latest && docker run -it --rm gabrielbo
 
 both hello_world for clang and mpi are on the path /var/tmp/ inside the container.
 Also, you can find the dockerhub of the
-repository [here](https://hub.docker.com/layers/gabrielborimacedo/openmpi_mo/latest/images/sha256-952922b7383fd6d06213c242a069dcfefea936cec3c1182464265a69c2f69478?context=explore)
+repository [here](https://hub.docker.com/layers/gabrielborimacedo/openmpi_mo/latest/images/sha256-20f542f914c87b85ee61e73072a15b6a8d05cc092a664524ee8f7f150f053841?context=explore).
+I recommend to use the tag **latest** to test the container

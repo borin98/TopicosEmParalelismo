@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-hpccm --recipe test_hpccm.py --format docker > ./Dockerfile
+hpccm --recipe hpccm_recipe.py --format docker > ./Dockerfile
